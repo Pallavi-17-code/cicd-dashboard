@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentialss')
-        IMAGE_NAME = 'pallavi/cicd-dashboard'
+        IMAGE_NAME = 'pallavigowda02/cicd-dashboard'
     }
 
     stages {
@@ -14,15 +14,23 @@ pipeline {
         }
 
         stage('Push to Docker Hub') {
-            steps {
-                bat 'echo %DOCKER_HUB_CREDENTIALS_PSW% | docker login -u %DOCKER_HUB_CREDENTIALS_USR% --password-stdin'
-                bat 'docker push %IMAGE_NAME%'
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-credentialss', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+            bat '''
+            echo %PASS% | docker login -u %USER% --password-stdin
+            docker push pallavigowda02/cicd-dashboard
+            '''
+        }
+    }
+}
             }
         }
 
         stage('Run Docker Container') {
             steps {
-                bat 'docker run -d -p 4000:3000 %IMAGE_NAME%'
+                bat 'docker stop cicd-app || exit 0'
+                bat 'docker rm cicd-app || exit 0'
+                bat 'docker run -d -p 4000:3000 --name cicd-app%IMAGE_NAME%'
             }
         }
     }
