@@ -15,12 +15,16 @@ pipeline {
         }
 
         stage('Push to Docker Hub') {
-    steps {
-        bat "docker login -u pallavigowda02 -p YOUR_TOKEN_HERE"
-        bat "docker push pallavigowda02/cicd-dashboard"
-    }
-}
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentialsss', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    bat '''
+                    echo %PASS% | docker login -u %USER% --password-stdin
+                    docker push %IMAGE_NAME%:%IMAGE_TAG%
+                    docker logout
+                    '''
                 }
+            }
+        }
 
         stage('Run Docker Container') {
             steps {
