@@ -4,32 +4,33 @@ pipeline {
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentialsss')
         IMAGE_NAME = 'pallavigowda02/cicd-dashboard'
+        IMAGE_TAG = 'latest'  // Add explicit versioning
     }
 
     stages {
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t %IMAGE_NAME% .'
+                bat "docker build -t %IMAGE_NAME%:%IMAGE_TAG% ."
             }
         }
 
         stage('Push to Docker Hub') {
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-credentialsss', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-            bat '''
-            echo %PASS% | docker login -u %USER% -p %PASS%"
-            docker push pallavigowda02/cicd-dashboard
-            '''
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentialsss', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    bat '''
+                    echo %PASS% | docker login -u %USER% --password-stdin
+                    docker push %IMAGE_NAME%:%IMAGE_TAG%
+                    docker logout
+                    '''
+                }
+            }
         }
-    }
-}
-
 
         stage('Run Docker Container') {
             steps {
                 bat 'docker stop cicd-app || exit 0'
                 bat 'docker rm cicd-app || exit 0'
-                bat 'docker run -d -p 4000:3000 --name cicd-app%IMAGE_NAME%'
+                bat "docker run -d -p 4000:3000 --name cicd-app %IMAGE_NAME%:%IMAGE_TAG%"
             }
         }
     }
