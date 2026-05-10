@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentialss')
+        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentialsss')
         IMAGE_NAME = 'pallavigowda02/cicd-dashboard'
     }
 
@@ -15,7 +15,7 @@ pipeline {
 
         stage('Push to Docker Hub') {
     steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-credentialss', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-credentialsss', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
             bat '''
             echo %PASS% | docker login -u %USER% -p %PASS%"
             docker push pallavigowda02/cicd-dashboard
