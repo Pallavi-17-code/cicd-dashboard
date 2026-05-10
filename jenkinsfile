@@ -17,7 +17,7 @@ pipeline {
     steps {
         withCredentials([usernamePassword(credentialsId: 'dockerhub-credentialss', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
             bat '''
-            echo %PASS% | docker login -u %USER% --p %PASS%"
+            echo %PASS% | docker login -u %USER% -p %PASS%"
             docker push pallavigowda02/cicd-dashboard
             '''
         }
