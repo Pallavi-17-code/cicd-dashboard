@@ -2,9 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('Dockerhub-credentialss')
         IMAGE_NAME = 'pallavigowda02/cicd-dashboard'
-        IMAGE_TAG = 'latest'  // Add explicit versioning
+        IMAGE_TAG = 'latest'
     }
 
     stages {
@@ -17,11 +16,9 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'Dockerhub-credentialss', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    bat '''
-                    echo %PASS% | docker login -u %USER% --password-stdin
-                    docker push %IMAGE_NAME%:%IMAGE_TAG%
-                    docker logout
-                    '''
+                    bat 'echo %PASS% | docker login -u %USER% --password-stdin'
+                    bat 'docker push pallavigowda02/cicd-dashboard:latest'
+                    bat 'docker logout'
                 }
             }
         }
@@ -30,7 +27,9 @@ pipeline {
             steps {
                 bat 'docker stop cicd-app || exit 0'
                 bat 'docker rm cicd-app || exit 0'
-                bat "docker run -d -p 4000:3000 --name cicd-app %IMAGE_NAME%:%IMAGE_TAG%"
+                // Kill any process using port 4000
+                bat 'FOR /F "tokens=5" %%a IN (\'netstat -aon ^| findstr :4000\') DO taskkill /F /PID %%a || exit 0'
+                bat 'docker run -d -p 4000:3000 --name cicd-app pallavigowda02/cicd-dashboard:latest'
             }
         }
     }
