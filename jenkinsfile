@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentialsss')
+        DOCKER_HUB_CREDENTIALS = credentials('Dockerhub-credentialss')
         IMAGE_NAME = 'pallavigowda02/cicd-dashboard'
         IMAGE_TAG = 'latest'  // Add explicit versioning
     }
@@ -16,7 +16,7 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentialsss', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'Dockerhub-credentialss', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
                     bat '''
                     echo %PASS% | docker login -u %USER% --password-stdin
                     docker push %IMAGE_NAME%:%IMAGE_TAG%
